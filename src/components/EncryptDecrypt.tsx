@@ -11,9 +11,11 @@ export default function EncryptDecrypt() {
   const [decryptionInput, setDecryptionInput] = useState<string>("");
   const [decryptedText, setDecryptedText] = useState<string>("");
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const handleEncrypt = async () => {
     if (!inputText.trim()) {
-      message.warning("Please enter text to encrypt!");
+      messageApi.warning("Please enter text to encrypt!");
       return;
     }
 
@@ -27,22 +29,22 @@ export default function EncryptDecrypt() {
       const data = await response.json();
       if (response.ok) {
         setEncryptedText(data.encryptedText);
-        message.success("Text encrypted successfully!");
+        messageApi.success("Text encrypted successfully");
       } else {
-        message.error(data.error || "Encryption failed.");
+        messageApi.error(data.error);
       }
     } catch (error) {
       if (typeof error === "object" && error !== null && "message" in error) {
         const err = error as { message: string; status?: number };
-        return message.error(err.message);
+        return messageApi.error(err.message);
       }
-      message.error("Error encrypting text.");
+      messageApi.error("Error encrypting text.");
     }
   };
 
   const handleDecrypt = async () => {
     if (!decryptionInput.trim()) {
-      message.warning("Please enter encrypted text to decrypt!");
+      messageApi.warning("Please enter encrypted text to decrypt!");
       return;
     }
 
@@ -56,16 +58,16 @@ export default function EncryptDecrypt() {
       const data = await response.json();
       if (response.ok) {
         setDecryptedText(data.decrypted);
-        message.success("Text decrypted successfully!");
+        messageApi.success("Text decrypted successfully!");
       } else {
-        message.error(data.error || "Decryption failed.");
+        messageApi.error(data.error);
       }
     } catch (error) {
       if (typeof error === "object" && error !== null && "message" in error) {
         const err = error as { message: string; status?: number };
-        return message.error(err.message);
+        return messageApi.error(err.message);
       }
-      message.error("Error decrypting text.");
+      messageApi.error("Error decrypting text.");
     }
   };
 
@@ -76,12 +78,13 @@ export default function EncryptDecrypt() {
 
   return (
     <AppLayout>
+      {contextHolder}
       <Card style={{ width: "100%", maxWidth: 800, textAlign: "center", borderRadius: 8 }}>
         <Title level={2}>AES Encryption Tool</Title>
 
         <Row gutter={16}>
           <Col span={12}>
-            <Card title="Encrypt Text" bordered={false}>
+            <Card title="Encrypt Text" variant='outlined'>
               <Input.TextArea
                 rows={3}
                 placeholder="Enter text to encrypt"
@@ -106,7 +109,7 @@ export default function EncryptDecrypt() {
           </Col>
 
           <Col span={12}>
-            <Card title="Decrypt Text" bordered={false}>
+            <Card title="Decrypt Text" variant="outlined">
               <Input.TextArea
                 rows={3}
                 placeholder="Paste encrypted text here"
