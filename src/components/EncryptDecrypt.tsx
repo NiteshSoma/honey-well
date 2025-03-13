@@ -5,19 +5,11 @@ import AppLayout from "../components/Layout";
 
 const { Title, Text } = Typography;
 
-interface IEncryptedResponse {
-  encryptedText: string;
-  iv: string;
-}
-
-export default function Home() {
-  const [inputText, setInputText] = useState("");
-  const [encryptedResponse, setEncryptedResponse] = useState<IEncryptedResponse>({
-    encryptedText: '',
-    iv: ''
-  });
-  const [decryptionInput, setDecryptionInput] = useState("");
-  const [decryptedText, setDecryptedText] = useState("");
+export default function EncryptDecrypt() {
+  const [inputText, setInputText] = useState<string>("");
+  const [encryptedText, setEncryptedText] = useState<string>("");
+  const [decryptionInput, setDecryptionInput] = useState<string>("");
+  const [decryptedText, setDecryptedText] = useState<string>("");
 
   const handleEncrypt = async () => {
     if (!inputText.trim()) {
@@ -34,7 +26,7 @@ export default function Home() {
 
       const data = await response.json();
       if (response.ok) {
-        setEncryptedResponse(data);
+        setEncryptedText(data.encryptedText);
         message.success("Text encrypted successfully!");
       } else {
         message.error(data.error || "Encryption failed.");
@@ -58,7 +50,7 @@ export default function Home() {
       const response = await fetch("/api/decrypt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ encryptedText: decryptionInput, iv: encryptedResponse.iv }),
+        body: JSON.stringify({ encryptedText: decryptionInput }),
       });
 
       const data = await response.json();
@@ -78,7 +70,7 @@ export default function Home() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(encryptedResponse.encryptedText);
+    navigator.clipboard.writeText(encryptedText);
     message.success("Encrypted text copied!");
   };
 
@@ -88,7 +80,6 @@ export default function Home() {
         <Title level={2}>AES Encryption Tool</Title>
 
         <Row gutter={16}>
-          {/* Encryption Section */}
           <Col span={12}>
             <Card title="Encrypt Text" bordered={false}>
               <Input.TextArea
@@ -102,10 +93,10 @@ export default function Home() {
                 Encrypt
               </Button>
 
-              {encryptedResponse.encryptedText && (
+              {encryptedText && (
                 <div style={{ marginTop: 15 }}>
                   <Text strong>Encrypted Text:</Text>
-                  <Input.TextArea rows={3} value={encryptedResponse.encryptedText} readOnly style={{ marginBottom: 10 }} />
+                  <Input.TextArea rows={3} value={encryptedText} readOnly style={{ marginBottom: 10 }} />
                   <Button icon={<CopyOutlined />} onClick={handleCopy}>
                     Copy
                   </Button>
@@ -114,7 +105,6 @@ export default function Home() {
             </Card>
           </Col>
 
-          {/* Decryption Section */}
           <Col span={12}>
             <Card title="Decrypt Text" bordered={false}>
               <Input.TextArea
